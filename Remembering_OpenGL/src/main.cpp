@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <assert.h>
+#include <array>
 
 #include "Renderer.h"
 
@@ -29,6 +30,7 @@
 #include "tests/TestTriangle.h"
 #include "tests/TestCube.h"
 
+#include "atomics/Cube.h"
 
 // camera
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -126,7 +128,16 @@ int main(void)
         registerTests(testMenu, wWidth, wHeight);
 
 
-        test::TestCube cube(wWidth, wHeight);
+        //test::TestCube cube(wWidth, wHeight);
+
+        //std::array<Cube, 3> cubes = { { Cube(wWidth, wHeight, 0.0f, 0.0f, 0.0f),
+                                        //Cube(wWidth, wHeight, 0.0f, 1.0f, 0.0f),
+                                        //Cube(wWidth, wHeight, 1.0f, 0.0f, 0.0f)} };
+
+        Cube mecube(wWidth, wHeight, 0.0f, 0.0f, 0.0f);
+        Cube mecube2(wWidth, wHeight, 0.0f, 0.0f, 0.0f);
+        //Cube mecube(wWidth, wHeight);
+        
 
 
         while (!glfwWindowShouldClose(window))
@@ -148,8 +159,21 @@ int main(void)
 
             glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)wWidth / (float)wHeight, 0.1f, 100.0f);
             glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+            
 
-            cube.OnRender(proj, view);
+            std::vector<glm::mat4> model_positions = {};
+            model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+            model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)));
+            model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 3.0f)));
+            //glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+
+            std::vector<float> scales = {1.0f, 0.5f, 2.0f};
+
+            //cube.OnRender(proj, view);
+            mecube.OnRender(proj, view, model_positions, scales);
+            //mecube.OnRender(proj, view, model);
+
+            //for (auto cube : cubes) cube.OnRender(proj, view);
 
 
 
