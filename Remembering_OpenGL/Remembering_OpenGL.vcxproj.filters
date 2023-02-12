@@ -66,6 +66,9 @@
     <ClCompile Include="src\VertexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\tests\TestCube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tests\Test.h">
@@ -557,6 +560,12 @@
     <ClInclude Include="src\VertexBufferLayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\tests\TestCube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\orthoCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vendor\glm\detail\func_common.inl">
@@ -893,15 +902,20 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\Basic.shader" />
-    <None Include="res\shaders\fragmentShader1.shader" />
     <None Include="res\shaders\TestTriangle.shader" />
-    <None Include="res\shaders\vertexShader1.shader" />
+    <None Include="res\shaders\TestCube.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\foliage.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\textures\sparkle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\pin.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\box.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

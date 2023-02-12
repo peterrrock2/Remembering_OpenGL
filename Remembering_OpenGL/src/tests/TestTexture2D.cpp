@@ -18,31 +18,42 @@ namespace test
           m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0))),
           m_TranslationA(200, 200, 0), m_TranslationB(400, 200, 0)
 	{
-        std::cout << m_Width << ", " << m_Height << std::endl;
-
+        //float vertexpositions[] = {
+        //    // x, y, z, texture_x, texture_y
+        //     -50.0f,  -50.0f, 0.0f, 0.0f, 0.0f,
+        //      50.0f,  -50.0f, 0.0f, 1.0f, 0.0f,
+        //      50.0f,   50.0f, 0.0f, 1.0f, 1.0f,
+        //     -50.0f,   50.0f, 0.0f, 0.0f, 1.0f
+        //};
         float vertexpositions[] = {
-            // x, y, texture_x, texture_y
-             -50.0f,  -50.0f, 0.0f, 0.0f,
-              50.0f,  -50.0f, 1.0f, 0.0f,
-              50.0f,   50.0f, 1.0f, 1.0f,
-             -50.0f,   50.0f, 0.0f, 1.0f
+            // x, y, z, texture_x, texture_y
+             -50.0f,  -50.0f, 0.0f, 0.0f, 0.0f,
+              50.0f,  -50.0f, 0.0f, 1.0f, 0.0f,
+              50.0f,   50.0f, 0.0f, 1.0f, 1.0f,
+              50.0f,   50.0f, 0.0f, 1.0f, 1.0f,
+             -50.0f,   50.0f, 0.0f, 0.0f, 1.0f,
+             -50.0f,  -50.0f, 0.0f, 0.0f, 0.0f
         };
-
-        int floatsPerVertex = 4;
+        int floatsPerVertex = 5;
 
         // create an index buffer for the square
+        //unsigned int indices[] = {
+        //    0,1,2,
+        //    2,3,0
+        //};
         unsigned int indices[] = {
             0,1,2,
-            2,3,0
+            3,4,5
         };
 
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
         m_VAO = std::make_unique<VertexArray>();
-        m_VB = std::make_unique<VertexBuffer>(vertexpositions, 4 * floatsPerVertex * sizeof(float));
+        //m_VB = std::make_unique<VertexBuffer>(vertexpositions, 4 * floatsPerVertex * sizeof(float));
+        m_VB = std::make_unique<VertexBuffer>(vertexpositions, 6 * floatsPerVertex * sizeof(float));
         VertexBufferLayout layout;
-        layout.Push<float>(2); // x and y 
+        layout.Push<float>(3); // x, y, and z
         layout.Push<float>(2); // texture_x and texture_y
 
         m_VAO->AddBuffer(*m_VB, layout);
@@ -50,7 +61,7 @@ namespace test
 
 
         // make the shaders
-        m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
+        m_Shader = std::make_unique<Shader>("res/shaders/TestCube.shader");
         m_Shader->Bind();
         m_Shader->SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
 
