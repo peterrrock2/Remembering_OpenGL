@@ -72,6 +72,12 @@
     <ClCompile Include="src\atomics\Cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\tests\TestPhong.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tests\lights\CubeLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tests\Test.h">
@@ -572,6 +578,12 @@
     <ClInclude Include="src\atomics\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\tests\TestPhong.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\lights\CubeLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vendor\glm\detail\func_common.inl">
@@ -910,6 +922,8 @@
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\TestTriangle.shader" />
     <None Include="res\shaders\TestCube.shader" />
+    <None Include="res\shaders\TestPhong.shader" />
+    <None Include="res\shaders\CubeLight.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\foliage.png">

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,6 +18,7 @@ namespace test
 		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnRender() {}
 		virtual void OnImGuiRender() {}
+
 	};
 
 	class TestMenu : public Test
@@ -39,6 +42,14 @@ namespace test
 			std::cout << "Registering test" << name << std::endl;
 		
 			m_Tests.push_back(std::make_pair(name, [W,H]() {return new T(W, H); }));
+		}
+
+		template<typename T>
+		void RegisterTest(const std::string& name, GLFWwindow* window,int W, int H) //allows you to pass the width and height of the window
+		{
+			std::cout << "Registering test" << name << std::endl;
+
+			m_Tests.push_back(std::make_pair(name, [W, H]() {return new T(window, W, H); }));
 		}
 	private:
 		Test*& m_CurrentTest; // refference to current test pointer since wemight want to change test

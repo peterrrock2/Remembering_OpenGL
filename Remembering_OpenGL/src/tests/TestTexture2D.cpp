@@ -66,7 +66,7 @@ namespace test
         m_Shader->SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
 
         m_Texture = std::make_unique<Texture>("res/textures/sparkle.png");
-        m_Shader->setUniform1i("u_Texture", 0); // needs to match the slot
+        m_Shader->SetUniform1i("u_Texture", 0); // needs to match the slot
 	}
 
 	TestTexture2D::~TestTexture2D()

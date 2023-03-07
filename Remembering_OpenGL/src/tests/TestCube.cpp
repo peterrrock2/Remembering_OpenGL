@@ -92,7 +92,7 @@ namespace test
 
         m_Texture = std::make_unique<Texture>("res/textures/box.jpg");
         //m_Texture = std::make_unique<Texture>("res/textures/sparkle.png");
-        m_Shader->setUniform1i("u_Texture", 0); // needs to match the slot
+        m_Shader->SetUniform1i("u_Texture", 0); // needs to match the slot
     }
 
     TestCube::~TestCube()

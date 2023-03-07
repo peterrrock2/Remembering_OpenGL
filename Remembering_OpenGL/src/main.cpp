@@ -1,9 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -29,8 +26,14 @@
 #include "tests/TestTexture2D.h"
 #include "tests/TestTriangle.h"
 #include "tests/TestCube.h"
+#include "tests/TestPhong.h"
 
 #include "atomics/Cube.h"
+
+
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 
 // camera
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -50,12 +53,15 @@ float lastX = 960.0f / 2.0;
 float lastY = 540.0f / 2.0;
 float fov = 45.0f;
 
+// lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 
 // Move these into abstracted places later
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 
-void registerTests(test::TestMenu* menu, int wWidth, int wHeight);
+void registerTests(test::TestMenu* menu, GLFWwindow* window, int wWidth, int wHeight);
 
 
 int main(void)
@@ -92,6 +98,7 @@ int main(void)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);//capture the mouse
 
 
+
     // only draw as fast as vsync
     //glfwSwapInterval(2);
 
@@ -107,11 +114,11 @@ int main(void)
 
     {
         glClearColor(0.0, 0.0, 0.0, 0.0);
-        glShadeModel(GL_SMOOTH);
+        //glShadeModel(GL_SMOOTH);
 
 
-        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-        GLCall(glEnable(GL_DEPTH_TEST));
+        //GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        //GLCall(glEnable(GL_DEPTH_TEST));
 
         Renderer renderer;
         
@@ -125,18 +132,10 @@ int main(void)
         test::TestMenu* testMenu = new test::TestMenu(currentTest);
         currentTest = testMenu;
 
-        registerTests(testMenu, wWidth, wHeight);
+        registerTests(testMenu, window, wWidth, wHeight);
 
-
-        //test::TestCube cube(wWidth, wHeight);
-
-        //std::array<Cube, 3> cubes = { { Cube(wWidth, wHeight, 0.0f, 0.0f, 0.0f),
-                                        //Cube(wWidth, wHeight, 0.0f, 1.0f, 0.0f),
-                                        //Cube(wWidth, wHeight, 1.0f, 0.0f, 0.0f)} };
 
         Cube mecube(wWidth, wHeight, 0.0f, 0.0f, 0.0f);
-        Cube mecube2(wWidth, wHeight, 0.0f, 0.0f, 0.0f);
-        //Cube mecube(wWidth, wHeight);
         
 
 
@@ -164,16 +163,12 @@ int main(void)
             std::vector<glm::mat4> model_positions = {};
             model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
             model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)));
-            model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 3.0f)));
-            //glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+            model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -5.0f, 0.0f)));
 
-            std::vector<float> scales = {1.0f, 0.5f, 2.0f};
+            std::vector<float> scales = {1.0f, 0.5f, 7.0f};
 
-            //cube.OnRender(proj, view);
             mecube.OnRender(proj, view, model_positions, scales);
-            //mecube.OnRender(proj, view, model);
 
-            //for (auto cube : cubes) cube.OnRender(proj, view);
 
 
 
@@ -244,6 +239,25 @@ void processInput(GLFWwindow* window)
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        cameraPos += cameraUp * cameraSpeed;
+
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+        cameraPos -= cameraUp * cameraSpeed;
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetCursorPosCallback(window, NULL);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetCursorPosCallback(window, mouse_callback);
+    }
+
 }
 
 
@@ -285,10 +299,11 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 }
 
 
-void registerTests(test::TestMenu* menu, int wWidth, int wHeight)
+void registerTests(test::TestMenu* menu, GLFWwindow* window, int wWidth, int wHeight)
 {
     menu->RegisterTest<test::TestClearColor>("Clear Color");
     menu->RegisterTest<test::TestTexture2D>("2D Texture", wWidth, wHeight);
     menu->RegisterTest<test::TestTriangle>("Triangle");
     menu->RegisterTest<test::TestCube>("Cube", wWidth, wHeight);
+    menu->RegisterTest<test::TestPhong>("Phong", wWidth, wHeight);
 }

@@ -8,26 +8,29 @@ namespace test
     TestTriangle::TestTriangle()
 	{
         float vertexpositions[] = {
-            // x, y
-             -0.5f,  -0.5f,
-              0.0f,   0.5f,
-              0.5f,  -0.5f
+            // x, y, r, g, b, a
+             -0.5f,  -0.5f, 1.0f, 0.0f, 0.0f, 1.0f,
+              0.0f,   0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
+              0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
         };
+
 
         int numberVertices = 3;
-        int floatsPerVertex = 2;
+        int floatsPerVertex = sizeof(vertexpositions) / (numberVertices * sizeof(float));
 
-        // create an index buffer for the square
+
+        // create an index buffer for the triangle
         unsigned int indices[] = {
-            0,1,2
+            1,2,0
         };
 
-        int numIndices = 3;
+        int numIndices = sizeof(indices) / sizeof(unsigned int);
 
         m_VAO = std::make_unique<VertexArray>();
         m_VB = std::make_unique<VertexBuffer>(vertexpositions, numberVertices * floatsPerVertex * sizeof(float));
         VertexBufferLayout layout;
-        layout.Push<float>(2); // x and y 
+        layout.Push<float>(2); // xy 
+        layout.Push<float>(floatsPerVertex - 2); // rgb
 
         m_VAO->AddBuffer(*m_VB, layout);
         m_IB = std::make_unique<IndexBuffer>(indices, numIndices);
@@ -36,7 +39,7 @@ namespace test
         // make the shaders
         m_Shader = std::make_unique<Shader>("res/shaders/TestTriangle.shader");
         m_Shader->Bind();
-        m_Shader->SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+        //m_Shader->SetUniform4f("u_Color", 0.0f, 0.0f, 1.0f, 1.0f);
 	}
 
 

@@ -16,6 +16,7 @@ Cube::Cube(int wWidth, int wHeight, float xpos, float ypos, float zpos)
     m_Angle(0.0f)
 {
     float vertexpositions[] = {
+        //x, y, z, tex_u, tex_v
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -89,7 +90,7 @@ Cube::Cube(int wWidth, int wHeight, float xpos, float ypos, float zpos)
 
     m_Texture = std::make_unique<Texture>("res/textures/box.jpg");
     //m_Texture = std::make_unique<Texture>("res/textures/sparkle.png");
-    m_Shader->setUniform1i("u_Texture", 0); // needs to match the slot
+    m_Shader->SetUniform1i("u_Texture", 0); // needs to match the slot
 }
 
 Cube::~Cube()
