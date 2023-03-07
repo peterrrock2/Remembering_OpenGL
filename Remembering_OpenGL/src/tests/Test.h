@@ -49,7 +49,7 @@ namespace test
 		{
 			std::cout << "Registering test" << name << std::endl;
 
-			m_Tests.push_back(std::make_pair(name, [W, H]() {return new T(window, W, H); }));
+			m_Tests.push_back(std::make_pair(name, [window, W, H]() {return new T(window, W, H); }));
 		}
 	private:
 		Test*& m_CurrentTest; // refference to current test pointer since wemight want to change test

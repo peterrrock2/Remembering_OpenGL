@@ -14,12 +14,13 @@
 
 namespace test
 {
-    TestPhong::TestPhong(int wWidth, int wHeight)
+    TestPhong::TestPhong(GLFWwindow* window, int wWidth, int wHeight)
         : m_Width(wWidth), m_Height(wHeight),
         m_Proj(glm::perspective(glm::radians(45.0f), (float)m_Width / (float)m_Height, 0.1f, 100.0f)),
         m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f))),
         m_Translation(0.0f, 0.0f, 0.0f), m_Rotation(0.0f, 1.0f, 0.0f),
-        m_Angle(0.0f), m_lastX(wWidth/2.0f), m_lastY(wHeight/2.0f)
+        m_Angle(0.0f), m_lastX(wWidth/2.0f), m_lastY(wHeight/2.0f),
+        m_window(window)
     {
         // lighting
         //glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
@@ -129,6 +130,9 @@ namespace test
 
         Renderer renderer;
 
+        ProcessInput(m_window);
+
+
         //m_Texture->Bind();
 
         //{
@@ -151,6 +155,8 @@ namespace test
             m_Shader->Bind();
             m_Shader->SetUniform3f("u_viewPos", m_camera.Position.x, m_camera.Position.y, m_camera.Position.z);
             m_Shader->SetUniformMat4f("u_model", model);
+
+            m_View = m_camera.GetViewMatrix();
             m_Shader->SetUniformMat4f("u_view", m_View);
             m_Shader->SetUniformMat4f("u_projection", m_Proj);
 
@@ -176,13 +182,13 @@ namespace test
             glfwSetWindowShouldClose(window, true);
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            m_camera.ProcessKeyboard(FORWARD, 0.0f);
+            m_camera.ProcessKeyboard(FORWARD, 0.01f);
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            m_camera.ProcessKeyboard(BACKWARD, 0.0f);
+            m_camera.ProcessKeyboard(BACKWARD, 0.01f);
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            m_camera.ProcessKeyboard(LEFT, 0.0f);
+            m_camera.ProcessKeyboard(LEFT, 0.01f);
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            m_camera.ProcessKeyboard(RIGHT, 0.0f);
+            m_camera.ProcessKeyboard(RIGHT, 0.01f);
     }
 
     void TestPhong::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)

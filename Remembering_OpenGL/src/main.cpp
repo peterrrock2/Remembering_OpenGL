@@ -92,10 +92,10 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetCursorPosCallback(window, NULL);
 
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);//capture the mouse
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);//capture the mouse
 
 
 
@@ -305,5 +305,5 @@ void registerTests(test::TestMenu* menu, GLFWwindow* window, int wWidth, int wHe
     menu->RegisterTest<test::TestTexture2D>("2D Texture", wWidth, wHeight);
     menu->RegisterTest<test::TestTriangle>("Triangle");
     menu->RegisterTest<test::TestCube>("Cube", wWidth, wHeight);
-    menu->RegisterTest<test::TestPhong>("Phong", wWidth, wHeight);
+    menu->RegisterTest<test::TestPhong>("Phong", window, wWidth, wHeight);
 }

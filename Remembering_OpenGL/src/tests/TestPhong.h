@@ -19,7 +19,7 @@ namespace test
 	class TestPhong : public Test
 	{
 	public:
-		TestPhong(int wWidth, int wHeight);
+		TestPhong(GLFWwindow* window, int wWidth, int wHeight);
 		~TestPhong();
 
 		void OnUpdate(float deltaTime) override;
@@ -43,6 +43,7 @@ namespace test
 		bool m_firstMouse = true;
 		// just for the test Phong class
 		Camera m_camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+		GLFWwindow* m_window;
 
 		glm::mat4 m_Proj, m_View;
 		glm::vec3 m_Translation, m_Rotation;
