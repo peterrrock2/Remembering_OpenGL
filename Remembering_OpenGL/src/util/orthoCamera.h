@@ -42,7 +42,7 @@ public:
            float pitch = 0.0f)
         :m_Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
          MovementSpeed(2.5f), 
-         MouseSensitivity(0.1f), 
+         MouseSensitivity(0.05f), 
          Zoom(45.0f)
     {
         m_Position = position;
@@ -57,7 +57,7 @@ public:
            float yaw, float pitch) 
        :m_Front(glm::vec3(0.0f, 0.0f, -1.0f)),
         MovementSpeed(2.5f), 
-        MouseSensitivity(0.1f), 
+        MouseSensitivity(0.05f), 
         Zoom(45.0f)
     {
         m_Position = glm::vec3(posX, posY, posZ);

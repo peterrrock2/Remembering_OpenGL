@@ -6,6 +6,7 @@ layout (location = 1) in vec3 vertexNormal;
 
 out vec3 FragPos;
 out vec3 Normal;
+out vec2 v_TexCoord;
 
 uniform mat4 u_model;
 uniform mat4 u_view;
@@ -15,6 +16,7 @@ void main()
 {
     FragPos = vec3(u_model * vec4(vertexPosition, 1.0));
     Normal = mat3(transpose(inverse(u_model))) * vertexNormal;  
+    v_TexCoord = texCoord;
     
     gl_Position = u_projection * u_view * vec4(FragPos, 1.0);
 }
@@ -23,8 +25,24 @@ void main()
 #version 330 core
 out vec4 FragColor;
 
+
+struct Material {
+    sampler2D diffuse;
+    vec3 specular;
+    float shininess;
+};
+
+struct Light {
+    vec3 lightPosition;
+    vec3 lightAmbient;
+    vec3 lightDiffuse;
+    vec3 lightSpecular;
+};
+
 in vec3 Normal;
 in vec3 FragPos;
+in vec2 v_TexCoord;
+
 
 uniform vec3 u_lightPos;
 uniform vec3 u_viewPos;

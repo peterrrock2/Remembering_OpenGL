@@ -2,8 +2,9 @@
 
 #include "Renderer.h"
 #include "imgui/imgui.h"
+#include <cmath>
 
-//#include "tests/lights/CubeLight.h"
+
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -15,17 +16,18 @@
 namespace test
 {
     TestPhong::TestPhong(GLFWwindow* window, int wWidth, int wHeight)
-        : m_Width(wWidth), m_Height(wHeight),
+      : m_Width(wWidth), m_Height(wHeight),
         m_Proj(glm::perspective(glm::radians(45.0f), (float)m_Width / (float)m_Height, 0.1f, 100.0f)),
         m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f))),
         m_Translation(0.0f, 0.0f, 0.0f), m_Rotation(0.0f, 1.0f, 0.0f),
         m_Angle(0.0f), m_lastX(wWidth / 2.0f), m_lastY(wHeight / 2.0f),
         m_window(window),
-        m_deltaTime(0.0f), m_currentFrame(0.0f), m_lastFrame(0.0f)
+        m_deltaTime(0.0f), m_currentFrame(0.0f), m_lastFrame(0.0f),
+        m_cubeLight(wWidth, wHeight, 1.2f, 1.0f, 2.0f)
     {
         // lighting
-        //glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
+        m_LightPos = glm::vec3(cos(m_time), 1.2f, sin(m_time));
+        m_cubeLight.setTranslation(m_LightPos);
         //Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
         float vertexpositions[] = {
@@ -99,7 +101,7 @@ namespace test
         // make the shaders
         m_Shader = std::make_unique<Shader>("res/shaders/TestPhong.shader");
         m_Shader->Bind();
-        m_Shader->SetUniform3f("u_lightPos", 1.2f, 1.0f, 2.0f);
+        m_Shader->SetUniform3f("u_lightPos", m_LightPos.x, m_LightPos.y, m_LightPos.z);
         m_Shader->SetUniform3f("u_viewPos", m_camera.m_Position.x, m_camera.m_Position.y, m_camera.m_Position.z);
         m_Shader->SetUniform3f("u_lightColor", 1.0f, 1.0f, 1.0f);
         m_Shader->SetUniform3f("u_objectColor", 1.0f, 0.5f, 0.31f);
@@ -111,9 +113,9 @@ namespace test
 
         ////m_CubeLight = CubeLight(m_Height, m_Width, 0.0f, 0.0f, 0.1f);
 
-        //m_Texture = std::make_unique<Texture>("res/textures/box.jpg");
-        ////m_Texture = std::make_unique<Texture>("res/textures/sparkle.png");
-        //m_Shader->SetUniform1i("u_Texture", 0); // needs to match the slot
+        m_Texture = std::make_unique<Texture>("res/textures/box.jpg");
+        //m_Texture = std::make_unique<Texture>("res/textures/sparkle.png");
+        m_Shader->SetUniform1i("u_Texture", 0); // needs to match the slot
     }
 
     TestPhong::~TestPhong()
@@ -128,16 +130,27 @@ namespace test
     {
         GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        GLCall(glEnable(GL_DEPTH_TEST));
 
         Renderer renderer;
 
         ProcessInput(m_window);
+        if (m_mouseControl) mouse_callback();
         m_currentFrame = static_cast<float>(glfwGetTime());
         m_deltaTime = m_currentFrame - m_lastFrame;
         m_lastFrame = m_currentFrame;
+        
+        m_time = (m_time + m_deltaTime);
+        if (m_time >= 2 * PI)
+            m_time -= 2 * PI;
+        printf("time %f\n\t cos = %f\n", m_time, cos(m_time));
+        m_LightPos.x = cos(m_time);
+        m_LightPos.z = sin(m_time);
+        m_cubeLight.setTranslation(m_LightPos);
 
 
-        //m_Texture->Bind();
+
+        m_Texture->Bind();
 
         //{
         //    glm::mat4 model = glm::mat4(1.0f);
@@ -157,12 +170,17 @@ namespace test
             model = glm::rotate(model, m_Angle, m_Rotation);
             //glm::mat4 model = translate * rotate;
             m_Shader->Bind();
+            m_Shader->SetUniform3f("u_lightPos", m_LightPos.x, m_LightPos.y, m_LightPos.z);
+
             m_Shader->SetUniform3f("u_viewPos", m_camera.m_Position.x, m_camera.m_Position.y, m_camera.m_Position.z);
             m_Shader->SetUniformMat4f("u_model", model);
 
             m_View = m_camera.GetViewMatrix();
             m_Shader->SetUniformMat4f("u_view", m_View);
             m_Shader->SetUniformMat4f("u_projection", m_Proj);
+
+            m_cubeLight.OnRender(m_Proj, m_View, glm::translate(glm::mat4(1.0f), m_LightPos));
+
 
             glm::mat4 mvp = m_Proj * m_View * model;
             renderer.Draw(*m_VAO, *m_IB, *m_Shader);
@@ -196,12 +214,27 @@ namespace test
             m_camera.ProcessKeyboard(UP, m_deltaTime);
         if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
             m_camera.ProcessKeyboard(DOWN, m_deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        {
+            m_mouseControl = false;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+        {
+            m_mouseControl = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
     }
 
-    void TestPhong::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+    void TestPhong::mouse_callback()
     {
-        float xpos = static_cast<float>(xposIn);
-        float ypos = static_cast<float>(yposIn);
+        GLdouble xPosIn, yPosIn;
+        glfwGetCursorPos(m_window, &xPosIn, &yPosIn);
+
+
+        float xpos = static_cast<float>(xPosIn);
+        float ypos = static_cast<float>(yPosIn);
         if (m_firstMouse)
         {
             m_lastX = xpos;

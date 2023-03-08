@@ -13,11 +13,13 @@ class CubeLight
 {
 public:
 	CubeLight(int wWidth, int wHeight, float xpos, float ypos, float zpos);
+	CubeLight(int wWidth, int wHeight, glm::vec3 pos);
 	//CubeLight(int wWidth, int wHeight);
 	~CubeLight();
 
 	void OnUpdate(float deltaTime);
-	void OnRender(glm::mat4 proj, glm::mat4 view, std::vector<glm::mat4> model_positions);
+	void OnRender(glm::mat4 proj, glm::mat4 view, glm::mat4 model_position);
+	void setTranslation(glm::vec3 trans) { m_Translation = trans; }
 
 private:
 	std::unique_ptr<VertexArray> m_VAO;
