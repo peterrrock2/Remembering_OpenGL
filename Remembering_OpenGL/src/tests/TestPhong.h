@@ -40,6 +40,8 @@ namespace test
 		int m_Width, m_Height;
 		float m_Angle;
 		float m_lastX, m_lastY;
+		float m_deltaTime;
+		float m_currentFrame, m_lastFrame;
 		bool m_firstMouse = true;
 		// just for the test Phong class
 		Camera m_camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));

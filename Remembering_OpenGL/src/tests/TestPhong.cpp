@@ -19,8 +19,9 @@ namespace test
         m_Proj(glm::perspective(glm::radians(45.0f), (float)m_Width / (float)m_Height, 0.1f, 100.0f)),
         m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f))),
         m_Translation(0.0f, 0.0f, 0.0f), m_Rotation(0.0f, 1.0f, 0.0f),
-        m_Angle(0.0f), m_lastX(wWidth/2.0f), m_lastY(wHeight/2.0f),
-        m_window(window)
+        m_Angle(0.0f), m_lastX(wWidth / 2.0f), m_lastY(wHeight / 2.0f),
+        m_window(window),
+        m_deltaTime(0.0f), m_currentFrame(0.0f), m_lastFrame(0.0f)
     {
         // lighting
         //glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
@@ -99,7 +100,7 @@ namespace test
         m_Shader = std::make_unique<Shader>("res/shaders/TestPhong.shader");
         m_Shader->Bind();
         m_Shader->SetUniform3f("u_lightPos", 1.2f, 1.0f, 2.0f);
-        m_Shader->SetUniform3f("u_viewPos", m_camera.Position.x, m_camera.Position.y, m_camera.Position.z);
+        m_Shader->SetUniform3f("u_viewPos", m_camera.m_Position.x, m_camera.m_Position.y, m_camera.m_Position.z);
         m_Shader->SetUniform3f("u_lightColor", 1.0f, 1.0f, 1.0f);
         m_Shader->SetUniform3f("u_objectColor", 1.0f, 0.5f, 0.31f);
 
@@ -131,6 +132,9 @@ namespace test
         Renderer renderer;
 
         ProcessInput(m_window);
+        m_currentFrame = static_cast<float>(glfwGetTime());
+        m_deltaTime = m_currentFrame - m_lastFrame;
+        m_lastFrame = m_currentFrame;
 
 
         //m_Texture->Bind();
@@ -153,7 +157,7 @@ namespace test
             model = glm::rotate(model, m_Angle, m_Rotation);
             //glm::mat4 model = translate * rotate;
             m_Shader->Bind();
-            m_Shader->SetUniform3f("u_viewPos", m_camera.Position.x, m_camera.Position.y, m_camera.Position.z);
+            m_Shader->SetUniform3f("u_viewPos", m_camera.m_Position.x, m_camera.m_Position.y, m_camera.m_Position.z);
             m_Shader->SetUniformMat4f("u_model", model);
 
             m_View = m_camera.GetViewMatrix();
@@ -180,15 +184,18 @@ namespace test
 
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
-
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            m_camera.ProcessKeyboard(FORWARD, 0.01f);
+            m_camera.ProcessKeyboard(FORWARD, m_deltaTime);
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            m_camera.ProcessKeyboard(BACKWARD, 0.01f);
+            m_camera.ProcessKeyboard(BACKWARD, m_deltaTime);
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            m_camera.ProcessKeyboard(LEFT, 0.01f);
+            m_camera.ProcessKeyboard(LEFT, m_deltaTime);
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            m_camera.ProcessKeyboard(RIGHT, 0.01f);
+            m_camera.ProcessKeyboard(RIGHT, m_deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+            m_camera.ProcessKeyboard(UP, m_deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+            m_camera.ProcessKeyboard(DOWN, m_deltaTime);
     }
 
     void TestPhong::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
