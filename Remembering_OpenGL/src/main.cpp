@@ -16,6 +16,9 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "util/perspCamera.h"
+
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -27,6 +30,7 @@
 #include "tests/TestTriangle.h"
 #include "tests/TestCube.h"
 #include "tests/TestPhong.h"
+#include "tests/TestLights.h"
 
 #include "atomics/Cube.h"
 
@@ -35,37 +39,21 @@
 #include <GL/glu.h>
 
 
-// camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-
-// timing
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
-
-
-bool firstMouse = true;
-float yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-float pitch = 0.0f;
-float lastX = 960.0f / 2.0;
-float lastY = 540.0f / 2.0;
-float fov = 45.0f;
-
-// lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
-
 // Move these into abstracted places later
-void processInput(GLFWwindow* window);
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+void processInput(GLFWwindow* window, Camera& camera, float deltaTime, bool& mouseMove);
+void mouse_callback(GLFWwindow* window, Camera& camera, float& lastX, float& lastY);
 
 void registerTests(test::TestMenu* menu, GLFWwindow* window, int wWidth, int wHeight);
 
 
 int main(void)
 {
+    float deltaTime = 0.0f;	// time between current frame and last frame
+    float lastFrame = 0.0f;
+
+    bool mouseMove = false;
+
+
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -83,6 +71,11 @@ int main(void)
     /* Create a windowed mode window and its OpenGL context */
     int wWidth = 960;
     int wHeight = 540;
+
+
+    float lastX = wWidth / 2.0f;
+    float lastY = wHeight / 2.0f;
+
     window = glfwCreateWindow(wWidth, wHeight, "Remembering OpenGL", NULL, NULL);
     if (!window)
     {
@@ -115,6 +108,8 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     {
+        Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
         glClearColor(0.0, 0.0, 0.0, 0.0);
         glShadeModel(GL_SMOOTH);
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -135,13 +130,12 @@ int main(void)
         registerTests(testMenu, window, wWidth, wHeight);
 
         Cube mecube(wWidth, wHeight, 0.0f, 0.0f, 0.0f);
-        
 
 
         while (!glfwWindowShouldClose(window))
         {
             float currentFrame = static_cast<float>(glfwGetTime());
-            deltaTime = currentFrame - lastFrame;
+            deltaTime = 1.5f*(currentFrame - lastFrame);
             lastFrame = currentFrame;
 
             GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
@@ -152,11 +146,14 @@ int main(void)
             glfwGetWindowSize(window, &wWidth, &wHeight);
             GLCall(glViewport(0, 0, wWidth, wHeight));
 
-            processInput(window);
+
+            processInput(window, camera, deltaTime, mouseMove);
+            if(mouseMove)
+                mouse_callback(window, camera, lastX, lastY);
       
 
             glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)wWidth / (float)wHeight, 0.1f, 100.0f);
-            glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+            glm::mat4 view = camera.GetViewMatrix();
             
 
             std::vector<glm::mat4> model_positions = {};
@@ -221,81 +218,54 @@ int main(void)
 
 
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, Camera& camera, float deltaTime, bool& mouseMove)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-    float cameraSpeed = static_cast<float>(2.5 * deltaTime);
-
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
-
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
-
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-
+        camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-
+        camera.ProcessKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-        cameraPos += cameraUp * cameraSpeed;
-
+        camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-        cameraPos -= cameraUp * cameraSpeed;
+        camera.ProcessKeyboard(DOWN, deltaTime);
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        glfwSetCursorPosCallback(window, NULL);
+        mouseMove = false;
     }
 
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
     {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        glfwSetCursorPosCallback(window, mouse_callback);
+        mouseMove = true;
     }
 
 }
 
 
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+void mouse_callback(GLFWwindow* window, Camera& camera, float& lastX, float& lastY)
 {
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
+    GLdouble xPosIn, yPosIn;
+    glfwGetCursorPos(window, &xPosIn, &yPosIn);
 
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
+
+    float xpos = static_cast<float>(xPosIn);
+    float ypos = static_cast<float>(yPosIn);
 
     float xoffset = xpos - lastX;
     float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
     lastX = xpos;
     lastY = ypos;
 
-    float sensitivity = 0.1f; // change this value to your liking
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    // make sure that when pitch is out of bounds, screen doesn't get flipped
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 
@@ -306,4 +276,5 @@ void registerTests(test::TestMenu* menu, GLFWwindow* window, int wWidth, int wHe
     menu->RegisterTest<test::TestTriangle>("Triangle");
     menu->RegisterTest<test::TestCube>("Cube", wWidth, wHeight);
     menu->RegisterTest<test::TestPhong>("Phong", window, wWidth, wHeight);
+    menu->RegisterTest<test::TestLights>("Lights", window, wWidth, wHeight);
 }

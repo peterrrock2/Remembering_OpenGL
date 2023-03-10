@@ -78,6 +78,9 @@
     <ClCompile Include="src\tests\lights\CubeLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\tests\TestLights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tests\Test.h">
@@ -572,7 +575,7 @@
     <ClInclude Include="src\tests\TestCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\util\orthoCamera.h">
+    <ClInclude Include="src\util\perspCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\atomics\Cube.h">
@@ -582,6 +585,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tests\lights\CubeLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\TestLights.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TestLights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

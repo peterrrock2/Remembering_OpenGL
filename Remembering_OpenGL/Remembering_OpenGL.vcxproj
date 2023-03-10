@@ -142,6 +142,7 @@
     <ClCompile Include="src\tests\Test.cpp" />
     <ClCompile Include="src\tests\TestClearColor.cpp" />
     <ClCompile Include="src\tests\TestCube.cpp" />
+    <ClCompile Include="src\tests\TestLights.cpp" />
     <ClCompile Include="src\tests\TestPhong.cpp" />
     <ClCompile Include="src\tests\TestTexture2D.cpp" />
     <ClCompile Include="src\tests\TestTriangle.cpp" />
@@ -160,15 +161,17 @@
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\TestLights.h" />
     <ClInclude Include="src\tests\lights\CubeLight.h" />
     <ClInclude Include="src\tests\Test.h" />
     <ClInclude Include="src\tests\TestClearColor.h" />
     <ClInclude Include="src\tests\TestCube.h" />
+    <ClInclude Include="src\tests\TestLights.h" />
     <ClInclude Include="src\tests\TestPhong.h" />
     <ClInclude Include="src\tests\TestTexture2D.h" />
     <ClInclude Include="src\tests\TestTriangle.h" />
     <ClInclude Include="src\Texture.h" />
-    <ClInclude Include="src\util\orthoCamera.h" />
+    <ClInclude Include="src\util\perspCamera.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\func_common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\func_exponential.hpp" />

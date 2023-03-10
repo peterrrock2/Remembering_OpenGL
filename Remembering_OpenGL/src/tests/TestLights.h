@@ -17,11 +17,11 @@
 
 namespace test
 {
-	class TestPhong : public Test
+	class TestLights : public Test
 	{
 	public:
-		TestPhong(GLFWwindow* window, int wWidth, int wHeight);
-		~TestPhong();
+		TestLights(GLFWwindow* window, int wWidth, int wHeight);
+		~TestLights();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
