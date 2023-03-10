@@ -34,6 +34,7 @@ Texture::~Texture()
 
 void Texture::Bind(unsigned int slot) const
 {
+	//printf("bound %s to slot %i\n", m_FilePath.c_str(), slot);
 	GLCall(glActiveTexture(GL_TEXTURE0 + slot));
 	GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 }

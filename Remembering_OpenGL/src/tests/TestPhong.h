@@ -34,7 +34,8 @@ namespace test
 		std::unique_ptr<VertexBuffer> m_VB;
 		std::unique_ptr<IndexBuffer> m_IB;
 		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<Texture> m_Texture;
+		std::unique_ptr<Texture> m_Diffuse;
+		std::unique_ptr<Texture> m_Specular;
 
 
 
@@ -45,6 +46,7 @@ namespace test
 		float m_currentFrame, m_lastFrame;
 		bool m_firstMouse = true;
 		bool m_mouseControl = false;
+		bool m_moveBool = true;
 		float m_time = 0.0f;
 		const float PI = 3.1415926535;
 		// just for the test Phong class

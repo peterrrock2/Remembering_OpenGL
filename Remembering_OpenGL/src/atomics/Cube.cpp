@@ -86,7 +86,6 @@ Cube::Cube(int wWidth, int wHeight, float xpos, float ypos, float zpos)
     // make the shaders
     m_Shader = std::make_unique<Shader>("res/shaders/TestCube.shader");
     m_Shader->Bind();
-    m_Shader->SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
 
     m_Texture = std::make_unique<Texture>("res/textures/box.jpg");
     //m_Texture = std::make_unique<Texture>("res/textures/sparkle.png");

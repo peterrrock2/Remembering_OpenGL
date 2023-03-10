@@ -94,6 +94,8 @@ int main(void)
     glfwMakeContextCurrent(window);
     glfwSetCursorPosCallback(window, NULL);
 
+    glewInit();
+
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);//capture the mouse
 
@@ -114,11 +116,9 @@ int main(void)
 
     {
         glClearColor(0.0, 0.0, 0.0, 0.0);
-        //glShadeModel(GL_SMOOTH);
-
-
-        //GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-        //GLCall(glEnable(GL_DEPTH_TEST));
+        glShadeModel(GL_SMOOTH);
+        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        GLCall(glEnable(GL_DEPTH_TEST));
 
         Renderer renderer;
         
@@ -133,7 +133,6 @@ int main(void)
         currentTest = testMenu;
 
         registerTests(testMenu, window, wWidth, wHeight);
-
 
         Cube mecube(wWidth, wHeight, 0.0f, 0.0f, 0.0f);
         

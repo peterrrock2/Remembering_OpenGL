@@ -10,6 +10,9 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
+//for debugging
+#include <glm/gtx/string_cast.hpp>
+
 
 
 
@@ -26,7 +29,7 @@ namespace test
         m_cubeLight(wWidth, wHeight, 1.2f, 1.0f, 2.0f)
     {
         // lighting
-        m_LightPos = glm::vec3(cos(m_time), 1.2f, sin(m_time));
+        m_LightPos = glm::vec3(cos(m_time), 0.6f, sin(m_time));
         m_cubeLight.setTranslation(m_LightPos);
         //Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -101,21 +104,20 @@ namespace test
         // make the shaders
         m_Shader = std::make_unique<Shader>("res/shaders/TestPhong.shader");
         m_Shader->Bind();
-        m_Shader->SetUniform3f("u_lightPos", m_LightPos.x, m_LightPos.y, m_LightPos.z);
-        m_Shader->SetUniform3f("u_viewPos", m_camera.m_Position.x, m_camera.m_Position.y, m_camera.m_Position.z);
-        m_Shader->SetUniform3f("u_lightColor", 1.0f, 1.0f, 1.0f);
-        m_Shader->SetUniform3f("u_objectColor", 1.0f, 0.5f, 0.31f);
 
 
-        //m_Shader = std::make_unique<Shader>("res/shaders/TestCube.shader");
-        //m_Shader->Bind();
-        //m_Shader->SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+        m_Diffuse = std::make_unique<Texture>("res/textures/container_diffuse.png");
+        m_Specular = std::make_unique<Texture>("res/textures/container_specular.png");
+        m_Shader->SetUniform1i("material.diffuse", 0);
+        m_Shader->SetUniform1i("material.specular", 1);
 
-        ////m_CubeLight = CubeLight(m_Height, m_Width, 0.0f, 0.0f, 0.1f);
+        //set the material properties
+        m_Shader->SetUniform1f("material.shininess", 64.0f);
 
-        m_Texture = std::make_unique<Texture>("res/textures/box.jpg");
-        //m_Texture = std::make_unique<Texture>("res/textures/sparkle.png");
-        m_Shader->SetUniform1i("u_Texture", 0); // needs to match the slot
+        //set the static light properties
+        m_Shader->SetUniform3f("light.ambient", m_cubeLight.m_ambient);
+        m_Shader->SetUniform3f("light.diffuse", m_cubeLight.m_diffuse);
+        m_Shader->SetUniform3f("light.specular", glm::vec3(1.0f));
     }
 
     TestPhong::~TestPhong()
@@ -140,39 +142,36 @@ namespace test
         m_deltaTime = m_currentFrame - m_lastFrame;
         m_lastFrame = m_currentFrame;
         
-        m_time = (m_time + m_deltaTime);
-        if (m_time >= 2 * PI)
-            m_time -= 2 * PI;
-        printf("time %f\n\t cos = %f\n", m_time, cos(m_time));
+
+        if(m_moveBool)
+        {
+            m_time = (m_time + m_deltaTime);
+            if (m_time >= 2 * PI)
+                m_time -= 2 * PI;
+        }
+
         m_LightPos.x = cos(m_time);
         m_LightPos.z = sin(m_time);
         m_cubeLight.setTranslation(m_LightPos);
 
 
+        m_Diffuse->Bind(0);
+        m_Specular->Bind(1);
 
-        m_Texture->Bind();
 
-        //{
-        //    glm::mat4 model = glm::mat4(1.0f);
-        //    model = glm::translate(model, m_Translation); // move model 200 px right and 200 px up
-        //    model = glm::rotate(model, m_Angle, m_Rotation);
-        //    //glm::mat4 model = translate * rotate;
-        //    glm::mat4 mvp = m_Proj * m_View * model;
-        //    m_Shader->Bind();
-        //    m_Shader->SetUniformMat4f("u_MVP", mvp);
-        //    renderer.Draw(*m_VAO, *m_IB, *m_Shader);
-        //}
 
 
         {
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, m_Translation); // move model 200 px right and 200 px up
+            model = glm::translate(model, m_Translation);
             model = glm::rotate(model, m_Angle, m_Rotation);
-            //glm::mat4 model = translate * rotate;
             m_Shader->Bind();
-            m_Shader->SetUniform3f("u_lightPos", m_LightPos.x, m_LightPos.y, m_LightPos.z);
 
-            m_Shader->SetUniform3f("u_viewPos", m_camera.m_Position.x, m_camera.m_Position.y, m_camera.m_Position.z);
+
+            //set the light properties
+            m_Shader->SetUniform3f("light.position", m_LightPos);
+
+            m_Shader->SetUniform3f("u_viewPos", m_camera.m_Position);
             m_Shader->SetUniformMat4f("u_model", model);
 
             m_View = m_camera.GetViewMatrix();
@@ -225,6 +224,9 @@ namespace test
             m_mouseControl = true;
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
+
+        if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+            m_moveBool = !m_moveBool;
     }
 
     void TestPhong::mouse_callback()

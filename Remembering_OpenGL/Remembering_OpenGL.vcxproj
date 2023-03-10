@@ -445,6 +445,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\box.jpg" />
+    <Image Include="res\textures\container_diffuse.png" />
+    <Image Include="res\textures\container_specular.png" />
     <Image Include="res\textures\foliage.png" />
     <Image Include="res\textures\pin.png" />
     <Image Include="res\textures\sparkle.png" />

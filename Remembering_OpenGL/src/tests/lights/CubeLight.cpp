@@ -3,10 +3,14 @@
 #include "Renderer.h"
 #include "imgui/imgui.h"
 
-
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtc/type_ptr.hpp>
+
+//for debugging
+#include <glm/gtx/string_cast.hpp>
+#include <iostream>
+
 
 CubeLight::CubeLight(int wWidth, int wHeight, float xpos, float ypos, float zpos)
     : m_Width(wWidth), m_Height(wHeight),
@@ -86,6 +90,9 @@ CubeLight::CubeLight(int wWidth, int wHeight, float xpos, float ypos, float zpos
     // make the shaders
     m_Shader = std::make_unique<Shader>("res/shaders/CubeLight.shader");
     m_Shader->Bind();
+
+
+    //std::cout << "cube light constructed with ambient " << glm::to_string(m_ambient) << std::endl;
 }
 
 
