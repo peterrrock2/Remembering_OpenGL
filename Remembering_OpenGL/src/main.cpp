@@ -122,6 +122,8 @@ int main(void)
         ImGui::StyleColorsDark();
 
 
+        test::TestLights myLights(window, wWidth, wHeight);
+
 
         test::Test* currentTest = nullptr;
         test::TestMenu* testMenu = new test::TestMenu(currentTest);
@@ -129,7 +131,6 @@ int main(void)
 
         registerTests(testMenu, window, wWidth, wHeight);
 
-        Cube mecube(wWidth, wHeight, 0.0f, 0.0f, 0.0f);
 
 
         while (!glfwWindowShouldClose(window))
@@ -155,18 +156,7 @@ int main(void)
             glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)wWidth / (float)wHeight, 0.1f, 100.0f);
             glm::mat4 view = camera.GetViewMatrix();
             
-
-            std::vector<glm::mat4> model_positions = {};
-            model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-            model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)));
-            model_positions.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -5.0f, 0.0f)));
-
-            std::vector<float> scales = {1.0f, 0.5f, 7.0f};
-
-            mecube.OnRender(proj, view, model_positions, scales);
-
-
-
+            myLights.OnRender();
 
             glFlush();
 
@@ -200,14 +190,6 @@ int main(void)
     glfwTerminate();
     return 0;
 }
-
-
-
-
-
-
-
-
 
 
 

@@ -331,6 +331,7 @@
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\CubeLight.shader" />
+    <None Include="res\shaders\TestLights.shader" />
     <None Include="res\shaders\TestPhong.shader" />
     <None Include="res\shaders\TestTriangle.shader" />
     <None Include="res\shaders\TestCube.shader" />

@@ -9,21 +9,31 @@
 #include <vector>
 
 
+enum LightTypes
+{
+	DIR,
+	POINT,
+	SPOT
+};
+
 class CubeLight
 {
 public:
 	CubeLight(int wWidth, int wHeight, float xpos, float ypos, float zpos);
 	CubeLight(int wWidth, int wHeight, glm::vec3 pos);
+	CubeLight(int wWidth, int wHeight, glm::vec3 pos, int type);
 	//CubeLight(int wWidth, int wHeight);
 	~CubeLight();
 
 	void OnUpdate(float deltaTime);
 	void OnRender(glm::mat4 proj, glm::mat4 view, glm::mat4 model_position);
+	void OnRender(glm::mat4 proj, glm::mat4 view);
 	void setTranslation(glm::vec3 trans) { m_Translation = trans; }
 
 	glm::vec3 m_ambient = glm::vec3(0.2f, 0.2f, 0.2f);
 	glm::vec3 m_diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 	glm::vec3 m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 m_Translation, m_Rotation;
 
 private:
 	std::unique_ptr<VertexArray> m_VAO;
@@ -33,7 +43,7 @@ private:
 
 	int m_Width, m_Height;
 	float m_Angle;
+	int m_type;
 
 	glm::mat4 m_Proj, m_View;
-	glm::vec3 m_Translation, m_Rotation;
 };

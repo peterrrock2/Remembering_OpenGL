@@ -933,6 +933,7 @@
     <None Include="res\shaders\TestCube.shader" />
     <None Include="res\shaders\TestPhong.shader" />
     <None Include="res\shaders\CubeLight.shader" />
+    <None Include="res\shaders\TestLights.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\foliage.png">

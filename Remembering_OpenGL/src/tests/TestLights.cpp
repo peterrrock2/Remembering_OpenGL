@@ -1,5 +1,7 @@
 #include "TestLights.h"
 
+
+
 #include "Renderer.h"
 #include "imgui/imgui.h"
 #include <cmath>
@@ -23,14 +25,41 @@ namespace test
         m_Proj(glm::perspective(glm::radians(45.0f), (float)m_Width / (float)m_Height, 0.1f, 100.0f)),
         m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f))),
         m_Translation(0.0f, 0.0f, 0.0f), m_Rotation(0.0f, 1.0f, 0.0f),
-        m_Angle(0.0f), m_lastX(wWidth / 2.0f), m_lastY(wHeight / 2.0f),
+        m_Angle(1.0f), m_lastX(wWidth / 2.0f), m_lastY(wHeight / 2.0f),
         m_window(window),
-        m_deltaTime(0.0f), m_currentFrame(0.0f), m_lastFrame(0.0f),
-        m_cubeLight(wWidth, wHeight, 1.2f, 1.0f, 2.0f)
+        m_deltaTime(0.0f), m_currentFrame(0.0f), m_lastFrame(0.0f)
     {
         // lighting
         m_LightPos = glm::vec3(cos(m_time), 0.6f, sin(m_time));
-        m_cubeLight.setTranslation(m_LightPos);
+
+
+        m_lights.push_back(std::make_unique<CubeLight>(m_Width, m_Height, m_LightPos));
+        m_lightTypes.push_back(POINT);
+        m_lights.push_back(std::make_unique<CubeLight>(m_Width, m_Height, glm::vec3(-2.13f, 1.84f, 2.56f)));
+        m_lightTypes.push_back(POINT);
+        m_lights.push_back(std::make_unique<CubeLight>(m_Width, m_Height, glm::vec3(-0.14f, -2.77f, -1.09f)));
+        m_lightTypes.push_back(POINT);
+        m_lights.push_back(std::make_unique<CubeLight>(m_Width, m_Height, glm::vec3(3.52f, -0.61f, -1.12f)));
+        m_lightTypes.push_back(POINT);
+        m_lights.push_back(std::make_unique<CubeLight>(m_Width, m_Height, 1.0f, 5.0f, 1.5f));
+        m_lightTypes.push_back(DIR);
+        m_lights.push_back(std::make_unique<CubeLight>(m_Width, m_Height, 0.0f, 0.0f, 3.0f));
+        m_lightTypes.push_back(SPOT);
+
+
+        for (int i = 0; i < 5; i++)
+        {
+            m_lights[i]->m_ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+            m_lights[i]->m_diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+        }
+
+        m_lights[4]->m_diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+        m_lights[4]->m_specular = glm::vec3(0.4f, 0.4f, 0.4f);
+        
+        m_lights[5]->m_ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+        m_lights[5]->m_diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+        m_lights[5]->m_specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
         //Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
         float vertexpositions[] = {
@@ -102,7 +131,8 @@ namespace test
 
 
         // make the shaders
-        m_Shader = std::make_unique<Shader>("res/shaders/TestPhong.shader");
+        m_Shader = std::make_unique<Shader>("res/shaders/TestLights.shader");
+        //m_Shader = std::make_unique<Shader>("res/shaders/TestPhong.shader");
         m_Shader->Bind();
 
 
@@ -114,10 +144,65 @@ namespace test
         //set the material properties
         m_Shader->SetUniform1f("material.shininess", 64.0f);
 
-        //set the static light properties
-        m_Shader->SetUniform3f("light.ambient", m_cubeLight.m_ambient);
-        m_Shader->SetUniform3f("light.diffuse", m_cubeLight.m_diffuse);
-        m_Shader->SetUniform3f("light.specular", glm::vec3(1.0f));
+
+
+        //set all of the lights up
+        m_Shader->SetUniform3f("dLight.direction", -0.2f, -1.0f, -0.3f);
+        m_Shader->SetUniform3f("dLight.ambient", 0.05f, 0.05f, 0.05f);
+        m_Shader->SetUniform3f("dLight.diffuse", 0.4f, 0.4f, 0.4f);
+        m_Shader->SetUniform3f("dLight.specular", 0.5f, 0.5f, 0.5f);
+
+
+
+        for (int i = 0; i < 4; i++)
+        {
+            m_Shader->SetUniform3f(("pLight[" + std::to_string(i) + "].position").c_str(), m_lights[i]->m_Translation);
+            m_Shader->SetUniform3f(("pLight[" + std::to_string(i) + "].ambient").c_str(), m_lights[i]->m_ambient);
+            m_Shader->SetUniform3f(("pLight[" + std::to_string(i) + "].diffuse").c_str(), m_lights[i]->m_diffuse);
+            m_Shader->SetUniform3f(("pLight[" + std::to_string(i) + "].specular").c_str(), m_lights[i]->m_specular);
+            m_Shader->SetUniform1f(("pLight[" + std::to_string(i) + "].constant").c_str(), 1.0f);
+            m_Shader->SetUniform1f(("pLight[" + std::to_string(i) + "].linTerm").c_str(), 0.35f);
+            m_Shader->SetUniform1f(("pLight[" + std::to_string(i) + "].quadTerm").c_str(), 0.44f);
+        }
+
+
+
+        m_Shader->SetUniform3f("sLight.position", m_camera.m_Position);
+        m_Shader->SetUniform3f("sLight.direction", m_camera.m_Front);
+        m_Shader->SetUniform3f("sLight.ambient", 0.0f, 0.0f, 0.0f);
+        m_Shader->SetUniform3f("sLight.diffuse", 1.0f, 1.0f, 1.0f);
+        m_Shader->SetUniform3f("sLight.specular", 1.0f, 1.0f, 1.0f);
+        m_Shader->SetUniform1f("sLight.constant", 1.0f);
+        m_Shader->SetUniform1f("sLight.linTerm", 0.09f);
+        m_Shader->SetUniform1f("sLight.quadTerm", 0.032f);
+        m_Shader->SetUniform1f("sLight.cutOff", glm::cos(glm::radians(8.5f)));
+        m_Shader->SetUniform1f("sLight.outerCutOff", glm::cos(glm::radians(12.0f)));
+
+
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), 0.0f, glm::normalize(glm::vec3(-1.0f, 2.0f, 0.5f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), 1.2f, glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), 0.3f, glm::normalize(glm::vec3(-2.0f, 0.5f, -1.0f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), -0.7f, glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), 2.1f, glm::normalize(glm::vec3(0.5f, 1.0f, -1.5f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), 1.5f, glm::normalize(glm::vec3(-1.0f, 0.0f, 1.0f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), -2.5f, glm::normalize(glm::vec3(1.0f, 2.0f, 3.0f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), 0.9f, glm::normalize(glm::vec3(1.0f, -1.0f, 0.5f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), -1.8f, glm::normalize(glm::vec3(-1.0f, 0.5f, 1.5f))));
+        m_cubeRotations.push_back(glm::rotate(glm::mat4(1.0f), 0.6f, glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))));
+
+
+
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, -4.8f, 0.2f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-0.9f, -2.4f, -1.0f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(4.8f, -0.7f, -2.9f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-2.1f, 1.9f, 3.5f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 2.2f, -4.5f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(3.3f, -1.6f, 4.4f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-4.5f, 3.7f, -1.8f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(2.1f, 0.3f, -3.9f)));
+        m_cubeTranslations.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(-2.3f, -2.8f, 0.7f)));
+
     }
 
     TestLights::~TestLights()
@@ -152,24 +237,33 @@ namespace test
 
         m_LightPos.x = cos(m_time);
         m_LightPos.z = sin(m_time);
-        m_cubeLight.setTranslation(m_LightPos);
+        //m_cubeLight.setTranslation(m_LightPos);
 
+        m_lights[0]->setTranslation(m_LightPos);
+
+        //m_lights[1]->setTranslation(glm::vec3(2*m_LightPos.x, m_LightPos.y, 2*m_LightPos.z));
+        //std::cout << "Light elements\n\t" << m_lights[0] << "\n\t" << m_lights[1] << std::endl;
 
         m_Diffuse->Bind(0);
         m_Specular->Bind(1);
 
 
+        //std::cout << "ID for light 1 " << m_lights[0]->m_Shader->GetID() << std::endl;
+        //std::cout << "ID for light 2 " << m_lights[1]->m_Shader->GetID() << std::endl;
+        //std::cout << "ID for light 3 " << m_ulights[0]->m_Shader->GetID() << std::endl;
 
 
+
+        for(int i = 0; i < m_cubeTranslations.size(); i++)
         {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, m_Translation);
-            model = glm::rotate(model, m_Angle, m_Rotation);
+            //glm::mat4 model = glm::mat4(1.0f);
+            glm::mat4 model = m_cubeTranslations[i] * m_cubeRotations[i];
             m_Shader->Bind();
 
 
             //set the light properties
-            m_Shader->SetUniform3f("light.position", m_LightPos);
+            //m_Shader->SetUniform3f("light.position", m_LightPos);
+            m_Shader->SetUniform3f("pLight[0].position", m_lights[0]->m_Translation);
 
             m_Shader->SetUniform3f("u_viewPos", m_camera.m_Position);
             m_Shader->SetUniformMat4f("u_model", model);
@@ -178,7 +272,13 @@ namespace test
             m_Shader->SetUniformMat4f("u_view", m_View);
             m_Shader->SetUniformMat4f("u_projection", m_Proj);
 
-            m_cubeLight.OnRender(m_Proj, m_View, glm::translate(glm::mat4(1.0f), m_LightPos));
+            //m_cubeLight.OnRender(m_Proj, m_View, glm::translate(glm::mat4(1.0f), m_LightPos));
+
+            m_lights[0]->OnRender(m_Proj, m_View, glm::translate(glm::mat4(1.0f), m_LightPos));
+            for(int i = 1; i < m_lights.size(); i++)
+                m_lights[i]->OnRender(m_Proj, m_View);
+            //m_lights[1]->OnRender(m_Proj, m_View, glm::translate(glm::mat4(1.0f), m_LightPos));
+            //m_lights[1]->OnRender(m_Proj, m_View, glm::translate(glm::mat4(1.0f), glm::vec3(2 * m_LightPos.x, m_LightPos.y, 2 * m_LightPos.z)));
 
 
             glm::mat4 mvp = m_Proj * m_View * model;
