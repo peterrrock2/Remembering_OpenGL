@@ -25,6 +25,10 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
+
 #include "tests/TestClearColor.h"
 #include "tests/TestTexture2D.h"
 #include "tests/TestTriangle.h"
@@ -92,7 +96,8 @@ int main(void)
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);//capture the mouse
 
-
+    glm::vec3 tester(1.0f);
+    std::cout << "Size of test " << sizeof(tester)/sizeof(float) << std::endl;
 
     // only draw as fast as vsync
     //glfwSwapInterval(2);

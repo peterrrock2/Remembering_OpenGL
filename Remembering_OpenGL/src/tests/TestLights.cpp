@@ -237,22 +237,13 @@ namespace test
 
         m_LightPos.x = cos(m_time);
         m_LightPos.z = sin(m_time);
-        //m_cubeLight.setTranslation(m_LightPos);
+
 
         m_lights[0]->setTranslation(m_LightPos);
 
-        //m_lights[1]->setTranslation(glm::vec3(2*m_LightPos.x, m_LightPos.y, 2*m_LightPos.z));
-        //std::cout << "Light elements\n\t" << m_lights[0] << "\n\t" << m_lights[1] << std::endl;
 
         m_Diffuse->Bind(0);
         m_Specular->Bind(1);
-
-
-        //std::cout << "ID for light 1 " << m_lights[0]->m_Shader->GetID() << std::endl;
-        //std::cout << "ID for light 2 " << m_lights[1]->m_Shader->GetID() << std::endl;
-        //std::cout << "ID for light 3 " << m_ulights[0]->m_Shader->GetID() << std::endl;
-
-
 
         for(int i = 0; i < m_cubeTranslations.size(); i++)
         {
