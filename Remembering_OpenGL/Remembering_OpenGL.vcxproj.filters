@@ -596,9 +596,6 @@
     <ClInclude Include="src\tests\TestLights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\TestLights.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\vendor\assimp5\assimp\Compiler\poppack1.h">
       <Filter>Header Files</Filter>
     </ClInclude>

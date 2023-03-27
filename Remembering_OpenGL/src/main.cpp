@@ -96,8 +96,8 @@ int main(void)
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);//capture the mouse
 
-    glm::vec3 tester(1.0f);
-    std::cout << "Size of test " << sizeof(tester)/sizeof(float) << std::endl;
+    //glm::vec3 tester(1.0f);
+    //std::cout << "Size of test " << sizeof(tester)/sizeof(float) << std::endl;
 
     // only draw as fast as vsync
     //glfwSwapInterval(2);
